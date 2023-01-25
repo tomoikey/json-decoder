@@ -8,5 +8,5 @@ fn main() {
     // println!("{json}");
     let result = la.extract();
 
-    println!("{:?}", result.unwrap());
+    println!("{:?}", result.unwrap().1);
 }
