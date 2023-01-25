@@ -8,6 +8,6 @@ fn main() {
 
     println!("raw json -> {}\n", json_in_json);
     let result = LexicalAnalysis::extract(json_in_json).unwrap().1;
-    // let aaaa = result.get("hello");
+    let aaaa = result.get("hello");
     println!("{:?}", result);
 }

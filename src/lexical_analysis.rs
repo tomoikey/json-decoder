@@ -105,12 +105,12 @@ impl DecodeResult {
     pub fn get(&self, key: &str) -> &Box<Self> {
         use DecodeResult::*;
         match self {
-            Str(_) => panic!(""),
-            Number(_) => panic!(""),
-            Array(_) => panic!(""),
+            Str(_) => panic!("Jsonの場合のみ適用できます"),
+            Number(_) => panic!("Jsonの場合のみ適用できます"),
+            Array(_) => panic!("Jsonの場合のみ適用できます"),
             Json(json) => match json.get(key) {
                 Some(value) => value,
-                None => panic!(""),
+                None => panic!("Jsonの場合のみ適用できます"),
             },
         }
     }
