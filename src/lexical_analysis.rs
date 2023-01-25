@@ -70,21 +70,18 @@ impl<'a> LexicalAnalysis {
                 let (remains, _) = char(':')(remains)?;
                 let (remains, value) = Self::try_to_extract_digit(remains)?;
                 if let Some(value) = value {
-                    Ok((remains, (key, value)))
-                } else {
-                    let (remains, value) = Self::try_to_extract_string(remains)?;
-                    if let Some(value) = value {
-                        Ok((remains, (key, value)))
-                    } else {
-                        let (remains, value) = Self::try_to_extract_array(remains)?;
-                        if let Some(value) = value {
-                            Ok((remains, (key, value)))
-                        } else {
-                            let (remains, value) = Self::extract(remains)?;
-                            Ok((remains, (key, value)))
-                        }
-                    }
+                    return Ok((remains, (key, value)));
                 }
+                let (remains, value) = Self::try_to_extract_string(remains)?;
+                if let Some(value) = value {
+                    return Ok((remains, (key, value)));
+                }
+                let (remains, value) = Self::try_to_extract_array(remains)?;
+                if let Some(value) = value {
+                    return Ok((remains, (key, value)));
+                }
+                let (remains, value) = Self::extract(remains)?;
+                Ok((remains, (key, value)))
             },
         )(remains)?;
         let (remains, _) = delimited(multispace0, char('}'), multispace0)(remains)?;
@@ -149,24 +146,25 @@ fn should_extract2() {
     let json =
         "{ \"hello\": 40, \"json\": { \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] }}";
     let la = LexicalAnalysis::extract(json);
+
+    let mut hash_map = HashMap::new();
+    hash_map
+        .entry(String::from("age"))
+        .or_insert(Box::new(Number(1)));
+    hash_map
+        .entry(String::from("name"))
+        .or_insert(Box::new(Str(String::from("Tom"))));
+    hash_map
+        .entry(String::from("array"))
+        .or_insert(Box::new(Array(vec![
+            Box::new(Number(1)),
+            Box::new(Number(2)),
+            Box::new(Number(4)),
+            Box::new(Number(3)),
+        ])));
     let expected = vec![
         (String::from("hello"), Number(40)),
-        (
-            String::from("json"),
-            Json(vec![
-                (String::from("age"), Box::new(Number(1))),
-                (String::from("name"), Box::new(Str(String::from("Tom")))),
-                (
-                    String::from("array"),
-                    Box::new(Array(vec![
-                        Box::new(Number(1)),
-                        Box::new(Number(2)),
-                        Box::new(Number(4)),
-                        Box::new(Number(3)),
-                    ])),
-                ),
-            ]),
-        ),
+        (String::from("json"), Json(hash_map)),
     ]
     .into_iter()
     .map(|n| (n.0, Box::new(n.1)))
