@@ -96,7 +96,7 @@ pub enum DecodeResult {
 }
 
 #[test]
-fn should_extract() {
+fn should_extract1() {
     use DecodeResult::*;
     let json = "{ \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] }";
     let la = LexicalAnalysis::extract(json);
@@ -110,6 +110,37 @@ fn should_extract() {
                 String::from("2"),
                 String::from("4"),
                 String::from("3"),
+            ]),
+        ),
+    ]
+    .into_iter()
+    .map(|n| (n.0, Box::new(n.1)))
+    .collect();
+    assert_eq!(la, Ok(("", Json(expected))))
+}
+
+#[test]
+fn should_extract2() {
+    use DecodeResult::*;
+    let json =
+        "{ \"hello\": 40, \"json\": { \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] }}";
+    let la = LexicalAnalysis::extract(json);
+    let expected = vec![
+        (String::from("hello"), Number(40)),
+        (
+            String::from("json"),
+            Json(vec![
+                (String::from("age"), Box::new(Number(1))),
+                (String::from("name"), Box::new(Str(String::from("Tom")))),
+                (
+                    String::from("array"),
+                    Box::new(Array(vec![
+                        String::from("1"),
+                        String::from("2"),
+                        String::from("4"),
+                        String::from("3"),
+                    ])),
+                ),
             ]),
         ),
     ]
