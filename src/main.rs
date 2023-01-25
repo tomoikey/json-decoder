@@ -4,7 +4,7 @@ mod lexical_analysis;
 
 fn main() {
     let json = "{ \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] }";
-    let la = LexicalAnalysis::new("{ \"hoge\" : 1, \"hoge2\" : \"2\" }");
+    let la = LexicalAnalysis::new(json);
     // println!("{json}");
     let result = la.extract();
 

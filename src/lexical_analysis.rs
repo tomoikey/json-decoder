@@ -25,7 +25,7 @@ impl<'a> LexicalAnalysis {
 
     pub fn extract(&self) -> IResult<&str, Vec<(&str, DecodeResult)>> {
         let value = self.value.as_str();
-        let (remains, _) = char('{')(value)?;
+        let (remains, _) = delimited(multispace0, char('{'), multispace0)(value)?;
         let (remains, value) = separated_list0(
             permutation((multispace0, char(','), multispace0)),
             |input| {
@@ -51,7 +51,7 @@ impl<'a> LexicalAnalysis {
                     if let Some(value) = value {
                         Ok((remains, (key, DecodeResult::Str(value.to_string()))))
                     } else {
-                        let (remains, _) = char('[')(remains)?;
+                        let (remains, _) = delimited(multispace0, char('['), multispace0)(remains)?;
                         let (remains, value) = separated_list0(
                             permutation((multispace0, char(','), multispace0)),
                             |input| {
@@ -60,7 +60,7 @@ impl<'a> LexicalAnalysis {
                                 Ok((remains, value))
                             },
                         )(remains)?;
-                        let (remains, _) = char(']')(remains)?;
+                        let (remains, _) = delimited(multispace0, char(']'), multispace0)(remains)?;
                         Ok((
                             remains,
                             (
@@ -74,7 +74,7 @@ impl<'a> LexicalAnalysis {
                 }
             },
         )(remains)?;
-        let (remains, _) = char('}')(remains)?;
+        let (remains, _) = delimited(multispace0, char('}'), multispace0)(remains)?;
         Ok((remains, value))
     }
 }
