@@ -1,6 +1,6 @@
 extern crate core;
 
-use crate::lexical_analysis::{DecodeResult, LexicalAnalysis};
+use crate::lexical_analysis::{DecodeResult, FromDecoderResult, LexicalAnalysis};
 
 mod lexical_analysis;
 
@@ -14,15 +14,16 @@ trait JsonDecoder<T> {
     fn parser(result: DecodeResult) -> T;
 
     fn decode_from(json: &str) -> T {
-        Self::parser(LexicalAnalysis::extract(json).unwrap().1)
+        let result = LexicalAnalysis::extract(json).unwrap().1;
+        Self::parser(result)
     }
 }
 
 impl JsonDecoder<Dog> for Dog {
     fn parser(result: DecodeResult) -> Dog {
         Dog {
-            name: result.get("name").as_str(),
-            age: result.get("age").as_number() as u8,
+            name: result.get("name"),
+            age: result.get("age"),
         }
     }
 }
@@ -30,5 +31,5 @@ impl JsonDecoder<Dog> for Dog {
 #[derive(Debug)]
 struct Dog {
     name: String,
-    age: u8,
+    age: usize,
 }

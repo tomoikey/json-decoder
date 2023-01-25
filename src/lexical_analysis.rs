@@ -103,14 +103,11 @@ pub enum DecodeResult {
 }
 
 impl DecodeResult {
-    pub fn get(&self, key: &str) -> Self {
+    pub fn get_from_hash_map(&self, key: &str) -> Self {
         use DecodeResult::*;
         match self {
             Json(json) => match json.get(key) {
-                Some(value) => {
-                    let aaa = value.deref().clone();
-                    aaa
-                }
+                Some(value) => value.deref().clone(),
                 None => panic!("key not found"),
             },
             _ => panic!("Jsonの場合のみ適用できます"),
@@ -139,6 +136,21 @@ impl DecodeResult {
             Array(value) => value.into_iter().map(|n| n.deref().clone()).collect(),
             _ => panic!("Array型ではありません"),
         }
+    }
+}
+pub trait FromDecoderResult<T> {
+    fn get(&self, key: &str) -> T;
+}
+
+impl FromDecoderResult<String> for DecodeResult {
+    fn get(&self, key: &str) -> String {
+        self.get_from_hash_map(key).as_str()
+    }
+}
+
+impl FromDecoderResult<usize> for DecodeResult {
+    fn get(&self, key: &str) -> usize {
+        self.get_from_hash_map(key).as_number()
     }
 }
 
