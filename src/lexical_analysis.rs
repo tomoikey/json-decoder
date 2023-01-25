@@ -33,17 +33,25 @@ impl<'a> LexicalAnalysis {
                 permutation((multispace0, char(','), multispace0)),
                 |input| {
                     let input: &str = input;
-                    let (remains, value) = digit1(input)?;
-                    Ok((remains, value))
+                    let (remains, value) = Self::try_to_extract_digit(input)?;
+                    if let Some(value) = value {
+                        Ok((remains, value))
+                    } else {
+                        let (remains, value) = Self::try_to_extract_string(remains)?;
+                        if let Some(value) = value {
+                            Ok((remains, value))
+                        } else {
+                            let (remains, value) = Self::extract(remains)?;
+                            Ok((remains, value))
+                        }
+                    }
                 },
             ),
             delimited(multispace0, char(']'), multispace0),
         ))(input)?;
         Ok((
             remains,
-            value.map(|n| {
-                DecodeResult::Array(n.into_iter().map(|m| m.to_string()).collect::<Vec<_>>())
-            }),
+            value.map(|n| DecodeResult::Array(n.into_iter().map(|m| Box::new(m)).collect())),
         ))
     }
 
@@ -91,14 +99,14 @@ impl<'a> LexicalAnalysis {
 pub enum DecodeResult {
     Str(String),
     Number(usize),
-    Array(Vec<String>),
+    Array(Vec<Box<DecodeResult>>),
     Json(Vec<(String, Box<DecodeResult>)>),
 }
 
 #[test]
 fn should_extract1() {
     use DecodeResult::*;
-    let json = "{ \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] }";
+    let json = "{ \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, \"3\"] }";
     let la = LexicalAnalysis::extract(json);
     let expected = vec![
         (String::from("age"), Number(1)),
@@ -106,10 +114,10 @@ fn should_extract1() {
         (
             String::from("array"),
             Array(vec![
-                String::from("1"),
-                String::from("2"),
-                String::from("4"),
-                String::from("3"),
+                Box::new(Number(1)),
+                Box::new(Number(2)),
+                Box::new(Number(4)),
+                Box::new(Str(String::from("3"))),
             ]),
         ),
     ]
@@ -135,10 +143,10 @@ fn should_extract2() {
                 (
                     String::from("array"),
                     Box::new(Array(vec![
-                        String::from("1"),
-                        String::from("2"),
-                        String::from("4"),
-                        String::from("3"),
+                        Box::new(Number(1)),
+                        Box::new(Number(2)),
+                        Box::new(Number(4)),
+                        Box::new(Number(3)),
                     ])),
                 ),
             ]),
