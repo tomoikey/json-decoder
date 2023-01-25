@@ -37,22 +37,19 @@ impl<'a> LexicalAnalysis {
                     let input: &str = input;
                     let (remains, value) = Self::try_to_extract_digit(input)?;
                     if let Some(value) = value {
-                        return Ok((remains, value));
+                        return Ok((remains, Box::new(value)));
                     }
                     let (remains, value) = Self::try_to_extract_string(input)?;
                     if let Some(value) = value {
-                        return Ok((remains, value));
+                        return Ok((remains, Box::new(value)));
                     }
                     let (remains, value) = Self::extract(input)?;
-                    Ok((remains, value))
+                    Ok((remains, Box::new(value)))
                 },
             ),
             delimited(multispace0, char(']'), multispace0),
         ))(input)?;
-        Ok((
-            remains,
-            value.map(|n| DecodeResult::Array(n.into_iter().map(|m| Box::new(m)).collect())),
-        ))
+        Ok((remains, value.map(|n| DecodeResult::Array(n))))
     }
 
     pub fn extract(input: &str) -> IResult<&str, DecodeResult> {
