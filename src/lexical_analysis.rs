@@ -1,5 +1,5 @@
 use nom::branch::permutation;
-use nom::character::complete::{alphanumeric0, alphanumeric1, anychar, char, digit1, multispace0};
+use nom::character::complete::{alphanumeric1, char, digit1, multispace0};
 use nom::combinator::opt;
 use nom::multi::separated_list0;
 use nom::sequence::delimited;
@@ -11,12 +11,6 @@ pub struct LexicalAnalysis {
 }
 
 impl<'a> LexicalAnalysis {
-    const UPPER_ALPHA: &'a str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const LOWER_ALPHA: &'a str = "abcdefghijklmnopqrstuvwxyz";
-    const DOUBLE_QUOTATION: &'a str = "\"";
-    const COMMA: &'a str = ",";
-    const ARRAY_EXPR: &'a str = "[]";
-
     pub fn new<T: Into<String>>(value: T) -> Self {
         Self {
             value: value.into(),
