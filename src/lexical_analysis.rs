@@ -6,17 +6,9 @@ use nom::sequence::delimited;
 use nom::IResult;
 
 #[derive(Debug)]
-pub struct LexicalAnalysis {
-    value: String,
-}
+pub struct LexicalAnalysis {}
 
 impl<'a> LexicalAnalysis {
-    pub fn new<T: Into<String>>(value: T) -> Self {
-        Self {
-            value: value.into(),
-        }
-    }
-
     fn try_to_extract_string(input: &str) -> IResult<&str, Option<DecodeResult>> {
         let (remains, value) = opt(delimited(
             multispace0,
@@ -55,9 +47,8 @@ impl<'a> LexicalAnalysis {
         ))
     }
 
-    pub fn extract(&self) -> IResult<&str, Vec<(&str, DecodeResult)>> {
-        let value = self.value.as_str();
-        let (remains, _) = delimited(multispace0, char('{'), multispace0)(value)?;
+    pub fn extract(input: &str) -> IResult<&str, DecodeResult> {
+        let (remains, _) = delimited(multispace0, char('{'), multispace0)(input)?;
         let (remains, value) = separated_list0(
             permutation((multispace0, char(','), multispace0)),
             |input| {
@@ -80,14 +71,19 @@ impl<'a> LexicalAnalysis {
                         if let Some(value) = value {
                             Ok((remains, (key, value)))
                         } else {
-                            todo!()
+                            let (remains, value) = Self::extract(remains)?;
+                            Ok((remains, (key, value)))
                         }
                     }
                 }
             },
         )(remains)?;
         let (remains, _) = delimited(multispace0, char('}'), multispace0)(remains)?;
-        Ok((remains, value))
+        let value = value
+            .into_iter()
+            .map(|n| (n.0.to_string(), Box::new(n.1)))
+            .collect();
+        Ok((remains, DecodeResult::Json(value)))
     }
 }
 
@@ -96,6 +92,7 @@ pub enum DecodeResult {
     Str(String),
     Number(usize),
     Array(Vec<String>),
+    Json(Vec<(String, Box<DecodeResult>)>),
 }
 
 #[test]
