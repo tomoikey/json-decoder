@@ -5,6 +5,7 @@ use nom::multi::separated_list0;
 use nom::sequence::delimited;
 use nom::IResult;
 use std::collections::HashMap;
+use std::ops::Deref;
 
 #[derive(Debug)]
 pub struct LexicalAnalysis {}
@@ -93,7 +94,7 @@ impl<'a> LexicalAnalysis {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum DecodeResult {
     Str(String),
     Number(usize),
@@ -102,16 +103,41 @@ pub enum DecodeResult {
 }
 
 impl DecodeResult {
-    pub fn get(&self, key: &str) -> &Box<Self> {
+    pub fn get(&self, key: &str) -> Self {
         use DecodeResult::*;
         match self {
-            Str(_) => panic!("Jsonの場合のみ適用できます"),
-            Number(_) => panic!("Jsonの場合のみ適用できます"),
-            Array(_) => panic!("Jsonの場合のみ適用できます"),
             Json(json) => match json.get(key) {
-                Some(value) => value,
-                None => panic!("Jsonの場合のみ適用できます"),
+                Some(value) => {
+                    let aaa = value.deref().clone();
+                    aaa
+                }
+                None => panic!("key not found"),
             },
+            _ => panic!("Jsonの場合のみ適用できます"),
+        }
+    }
+
+    pub fn as_str(&self) -> String {
+        use DecodeResult::*;
+        match self {
+            Str(value) => value.to_string(),
+            _ => panic!("String型ではありません"),
+        }
+    }
+
+    pub fn as_number(&self) -> usize {
+        use DecodeResult::*;
+        match self {
+            Number(value) => value.clone(),
+            _ => panic!("Number型ではありません"),
+        }
+    }
+
+    pub fn as_array(&self) -> Vec<DecodeResult> {
+        use DecodeResult::*;
+        match self {
+            Array(value) => value.into_iter().map(|n| n.deref().clone()).collect(),
+            _ => panic!("Array型ではありません"),
         }
     }
 }
