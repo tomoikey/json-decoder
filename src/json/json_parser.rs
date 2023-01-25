@@ -1,4 +1,5 @@
-use crate::lexical_analysis::{DecodeResult, FromDecoderResult, LexicalAnalysis};
+use crate::json::from_decoder_result::FromDecoderResult;
+use crate::json::lexical_analysis::{DecodeResult, LexicalAnalysis};
 use crate::Dog;
 
 pub trait JsonDecoder<T> {

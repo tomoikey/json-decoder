@@ -1,9 +1,8 @@
 extern crate core;
 
-use crate::json_parser::JsonDecoder;
+use crate::json::json_parser::JsonDecoder;
 
-mod json_parser;
-mod lexical_analysis;
+mod json;
 
 fn main() {
     let dog_json = "{\"name\": \"taro\", \"age\": 8, \"favoriteNumbers\": [1, 2, 3, 4, 5], \"favoriteStrings\": [\"apple\", \"banana\"] }";
