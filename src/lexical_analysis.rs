@@ -26,6 +26,27 @@ impl<'a> LexicalAnalysis {
         Ok((remains, value.map(|n| DecodeResult::Str(n.to_string()))))
     }
 
+    fn try_to_extract_array(input: &str) -> IResult<&str, Option<DecodeResult>> {
+        let (remains, value) = opt(delimited(
+            delimited(multispace0, char('['), multispace0),
+            separated_list0(
+                permutation((multispace0, char(','), multispace0)),
+                |input| {
+                    let input: &str = input;
+                    let (remains, value) = digit1(input)?;
+                    Ok((remains, value))
+                },
+            ),
+            delimited(multispace0, char(']'), multispace0),
+        ))(input)?;
+        Ok((
+            remains,
+            value.map(|n| {
+                DecodeResult::Array(n.into_iter().map(|m| m.to_string()).collect::<Vec<_>>())
+            }),
+        ))
+    }
+
     pub fn extract(&self) -> IResult<&str, Vec<(&str, DecodeResult)>> {
         let value = self.value.as_str();
         let (remains, _) = delimited(multispace0, char('{'), multispace0)(value)?;
@@ -50,25 +71,12 @@ impl<'a> LexicalAnalysis {
                     if let Some(value) = value {
                         Ok((remains, (key, value)))
                     } else {
-                        let (remains, _) = delimited(multispace0, char('['), multispace0)(remains)?;
-                        let (remains, value) = separated_list0(
-                            permutation((multispace0, char(','), multispace0)),
-                            |input| {
-                                let input: &str = input;
-                                let (remains, value) = digit1(input)?;
-                                Ok((remains, value))
-                            },
-                        )(remains)?;
-                        let (remains, _) = delimited(multispace0, char(']'), multispace0)(remains)?;
-                        Ok((
-                            remains,
-                            (
-                                key,
-                                DecodeResult::Array(
-                                    value.into_iter().map(|n| n.to_string()).collect(),
-                                ),
-                            ),
-                        ))
+                        let (remains, value) = Self::try_to_extract_array(remains)?;
+                        if let Some(value) = value {
+                            Ok((remains, (key, value)))
+                        } else {
+                            todo!()
+                        }
                     }
                 }
             },
