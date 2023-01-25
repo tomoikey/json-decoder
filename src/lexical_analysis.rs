@@ -4,6 +4,7 @@ use nom::combinator::opt;
 use nom::multi::separated_list0;
 use nom::sequence::delimited;
 use nom::IResult;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct LexicalAnalysis {}
@@ -100,7 +101,22 @@ pub enum DecodeResult {
     Str(String),
     Number(usize),
     Array(Vec<Box<DecodeResult>>),
-    Json(Vec<(String, Box<DecodeResult>)>),
+    Json(HashMap<String, Box<DecodeResult>>),
+}
+
+impl DecodeResult {
+    pub fn get(&self, key: &str) -> &Box<Self> {
+        use DecodeResult::*;
+        match self {
+            Str(_) => panic!(""),
+            Number(_) => panic!(""),
+            Array(_) => panic!(""),
+            Json(json) => match json.get(key) {
+                Some(value) => value,
+                None => panic!(""),
+            },
+        }
+    }
 }
 
 #[test]
