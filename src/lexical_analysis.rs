@@ -26,6 +26,14 @@ impl<'a> LexicalAnalysis {
         Ok((remains, value.map(|n| DecodeResult::Str(n.to_string()))))
     }
 
+    fn try_to_extract_digit(input: &str) -> IResult<&str, Option<DecodeResult>> {
+        let (remains, value) = opt(delimited(multispace0, digit1, multispace0))(input)?;
+        Ok((
+            remains,
+            value.map(|n| DecodeResult::Number(n.parse::<usize>().unwrap())),
+        ))
+    }
+
     fn try_to_extract_array(input: &str) -> IResult<&str, Option<DecodeResult>> {
         let (remains, value) = opt(delimited(
             delimited(multispace0, char('['), multispace0),
@@ -60,12 +68,9 @@ impl<'a> LexicalAnalysis {
                     multispace0,
                 )(input)?;
                 let (remains, _) = char(':')(remains)?;
-                let (remains, value) = opt(delimited(multispace0, digit1, multispace0))(remains)?;
+                let (remains, value) = Self::try_to_extract_digit(remains)?;
                 if let Some(value) = value {
-                    Ok((
-                        remains,
-                        (key, DecodeResult::Number(value.parse::<usize>().unwrap())),
-                    ))
+                    Ok((remains, (key, value)))
                 } else {
                     let (remains, value) = Self::try_to_extract_string(remains)?;
                     if let Some(value) = value {
