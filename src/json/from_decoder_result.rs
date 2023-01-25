@@ -1,4 +1,4 @@
-use crate::json::lexical_analysis::DecodeResult;
+use crate::json::lexical_analysis::decode_result::DecodeResult;
 
 pub trait FromDecoderResult<T> {
     fn get(&self, key: &str) -> T;
