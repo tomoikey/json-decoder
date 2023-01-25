@@ -87,7 +87,7 @@ impl<'a> LexicalAnalysis {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum DecodeResult {
     Str(String),
     Number(usize),
@@ -97,7 +97,24 @@ pub enum DecodeResult {
 
 #[test]
 fn should_extract() {
-    // let json = "{ \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] }";
-    // let la = LexicalAnalysis::new("{123}");
-    // assert_eq!(Ok(todo!()), la.extract())
+    use DecodeResult::*;
+    let json = "{ \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] }";
+    let la = LexicalAnalysis::extract(json);
+    let expected = vec![
+        (String::from("age"), Number(1)),
+        (String::from("name"), Str(String::from("Tom"))),
+        (
+            String::from("array"),
+            Array(vec![
+                String::from("1"),
+                String::from("2"),
+                String::from("4"),
+                String::from("3"),
+            ]),
+        ),
+    ]
+    .into_iter()
+    .map(|n| (n.0, Box::new(n.1)))
+    .collect();
+    assert_eq!(la, Ok(("", Json(expected))))
 }
