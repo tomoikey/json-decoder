@@ -1,7 +1,7 @@
 use crate::json::from_decoder_result::FromDecoderResult;
 use crate::json::lexical_analysis::decode_result::DecodeResult;
 use crate::json::lexical_analysis::lexical_analyzer::LexicalAnalysis;
-use crate::Dog;
+use crate::{Dog, Human};
 
 pub trait JsonDecoder<T> {
     fn parser(result: DecodeResult) -> T;
@@ -19,6 +19,17 @@ impl JsonDecoder<Dog> for Dog {
             age: result.get("age"),
             favorite_numbers: result.get("favoriteNumbers"),
             favorite_strings: result.get("favoriteStrings"),
+            human: result.get("family"),
+        }
+    }
+}
+
+impl JsonDecoder<Human> for Human {
+    fn parser(result: DecodeResult) -> Human {
+        Human {
+            name: result.get("name"),
+            age: result.get("age"),
+            array: result.get("array"),
         }
     }
 }
