@@ -24,7 +24,7 @@ impl<'a> LexicalAnalysis {
         let (remains, value) = opt(delimited(multispace0, digit1, multispace0))(input)?;
         Ok((
             remains,
-            value.map(|n| DecodeResult::Number(n.parse::<usize>().unwrap())),
+            value.map(|n| DecodeResult::Number(n.parse::<u8>().unwrap())),
         ))
     }
 

@@ -11,14 +11,14 @@ impl FromDecoderResult<String> for DecodeResult {
     }
 }
 
-impl FromDecoderResult<usize> for DecodeResult {
-    fn get(&self, key: &str) -> usize {
+impl FromDecoderResult<u8> for DecodeResult {
+    fn get(&self, key: &str) -> u8 {
         self.get_from_hash_map(key).as_number()
     }
 }
 
-impl FromDecoderResult<Vec<usize>> for DecodeResult {
-    fn get(&self, key: &str) -> Vec<usize> {
+impl FromDecoderResult<Vec<u8>> for DecodeResult {
+    fn get(&self, key: &str) -> Vec<u8> {
         self.get_from_hash_map(key)
             .as_array()
             .into_iter()
