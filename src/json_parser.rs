@@ -15,6 +15,8 @@ impl JsonDecoder<Dog> for Dog {
         Dog {
             name: result.get("name"),
             age: result.get("age"),
+            favorite_numbers: result.get("favoriteNumbers"),
+            favorite_strings: result.get("favoriteStrings"),
         }
     }
 }

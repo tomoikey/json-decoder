@@ -37,16 +37,14 @@ impl<'a> LexicalAnalysis {
                     let input: &str = input;
                     let (remains, value) = Self::try_to_extract_digit(input)?;
                     if let Some(value) = value {
-                        Ok((remains, value))
-                    } else {
-                        let (remains, value) = Self::try_to_extract_string(remains)?;
-                        if let Some(value) = value {
-                            Ok((remains, value))
-                        } else {
-                            let (remains, value) = Self::extract(remains)?;
-                            Ok((remains, value))
-                        }
+                        return Ok((remains, value));
                     }
+                    let (remains, value) = Self::try_to_extract_string(input)?;
+                    if let Some(value) = value {
+                        return Ok((remains, value));
+                    }
+                    let (remains, value) = Self::extract(input)?;
+                    Ok((remains, value))
                 },
             ),
             delimited(multispace0, char(']'), multispace0),
@@ -151,6 +149,26 @@ impl FromDecoderResult<String> for DecodeResult {
 impl FromDecoderResult<usize> for DecodeResult {
     fn get(&self, key: &str) -> usize {
         self.get_from_hash_map(key).as_number()
+    }
+}
+
+impl FromDecoderResult<Vec<usize>> for DecodeResult {
+    fn get(&self, key: &str) -> Vec<usize> {
+        self.get_from_hash_map(key)
+            .as_array()
+            .into_iter()
+            .map(|n| n.as_number())
+            .collect()
+    }
+}
+
+impl FromDecoderResult<Vec<String>> for DecodeResult {
+    fn get(&self, key: &str) -> Vec<String> {
+        self.get_from_hash_map(key)
+            .as_array()
+            .into_iter()
+            .map(|n| n.as_str())
+            .collect()
     }
 }
 
