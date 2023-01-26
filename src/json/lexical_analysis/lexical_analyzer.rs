@@ -41,7 +41,7 @@ impl<'a> LexicalAnalysis {
 
     fn try_to_extract_array(input: &str) -> IResult<&str, Option<DecodeResult>> {
         let (remains, value) = opt(delimited(
-            delimited(multispace0, char('['), multispace0),
+            permutation((multispace0, char('['))),
             separated_list0(char(','), |input| {
                 let input: &str = input;
                 let (remains, value) = Self::try_to_extract_digit(input)?;
@@ -55,7 +55,7 @@ impl<'a> LexicalAnalysis {
                 let (remains, value) = Self::extract(input)?;
                 Ok((remains, Box::new(value)))
             }),
-            delimited(multispace0, char(']'), multispace0),
+            permutation((multispace0, char(']'))),
         ))(input)?;
         Ok((remains, value.map(|n| DecodeResult::Array(n))))
     }
