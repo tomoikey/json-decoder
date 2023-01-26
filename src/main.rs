@@ -2,22 +2,18 @@ extern crate core;
 
 use crate::json::json_parser::JsonDecoder;
 use crate::json::lexical_analysis::lexical_analyzer::LexicalAnalysis;
+use std::fs;
 use std::time::Instant;
 
 mod json;
 
 fn main() {
     let start = Instant::now();
-    for _ in 0..1000000 {
-        // let dog_json =
-        // "{\"name\": \"taro\", \"age\": 8, \"favoriteNumbers\": [1, 2, 3, 4, 5], \"favoriteStrings\": [\"apple\", \"banana\"], \"family\": { \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] } }";
-        // "{\"name\": \"taro\" }";
-        LexicalAnalysis::extract(
-            "{ \"name\": \"taro\" , \"age\" : 8, \"favoriteNumbers\" : [ 1 , 2 , 3 , 4 , 5 ] }",
-        );
-        // println!("{:?}", result.human);
-    }
+    let aaa = Dog::decode_from(
+        "{ \"name\": \"taro\",\"age\": 8, \"favoriteNumbers\" : [ 1 , 2 , 3 , 4 , 5 ], \"family\": { \"name\": \"hoge\", \"age\": 8, \"array\": [1, 2, 3] } }",
+    );
     let end = start.elapsed();
+    println!("{:?}", aaa);
     println!(
         "{}.{:03}秒経過しました。",
         end.as_secs(),
@@ -30,7 +26,6 @@ struct Dog {
     name: String,
     age: u8,
     favorite_numbers: Vec<u8>,
-    favorite_strings: Vec<String>,
     human: Human,
 }
 

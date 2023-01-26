@@ -31,31 +31,38 @@ impl<'a> LexicalAnalysis {
     fn try_to_extract_array(input: &str) -> IResult<&str, Option<DecodeResult>> {
         let (remains, value) = opt(delimited(
             delimited(multispace0, char('['), multispace0),
-            separated_list0(char(','), |input| {
-                let input: &str = input;
-                let (remains, value) = Self::try_to_extract_digit(input)?;
-                if let Some(value) = value {
-                    return Ok((remains, Box::new(value)));
-                }
-                let (remains, value) = Self::try_to_extract_string(input)?;
-                if let Some(value) = value {
-                    return Ok((remains, Box::new(value)));
-                }
-                let (remains, value) = Self::extract_json(input)?;
-                Ok((remains, Box::new(value)))
-            }),
+            separated_list0(
+                permutation((multispace0, char(','), multispace0)),
+                |input| {
+                    let input: &str = input;
+                    let (remains, value) = Self::try_to_extract_digit(input)?;
+                    if let Some(value) = value {
+                        return Ok((remains, Box::new(value)));
+                    }
+                    let (remains, value) = Self::try_to_extract_string(input)?;
+                    if let Some(value) = value {
+                        return Ok((remains, Box::new(value)));
+                    }
+                    let (remains, value) = Self::extract(input)?;
+                    Ok((remains, Box::new(value)))
+                },
+            ),
             delimited(multispace0, char(']'), multispace0),
         ))(input)?;
         Ok((remains, value.map(|n| DecodeResult::Array(n))))
     }
 
-    fn extract_json(input: &str) -> IResult<&str, DecodeResult> {
+    pub fn extract(input: &str) -> IResult<&str, DecodeResult> {
         let (remains, _) = delimited(multispace0, char('{'), multispace0)(input)?;
         let (remains, value) = separated_list0(
             permutation((multispace0, char(','), multispace0)),
             |input| {
                 let input: &str = input;
-                let (remains, key) = delimited(char('\"'), alphanumeric1, char('\"'))(input)?;
+                let (remains, key) = delimited(
+                    multispace0,
+                    delimited(char('\"'), alphanumeric1, char('\"')),
+                    multispace0,
+                )(input)?;
                 let (remains, _) = char(':')(remains)?;
                 let (remains, value) = Self::try_to_extract_digit(remains)?;
                 if let Some(value) = value {
@@ -73,16 +80,13 @@ impl<'a> LexicalAnalysis {
                 Ok((remains, (key, value)))
             },
         )(remains)?;
-        let (remains, _) = delimited(multispace0, char('}'), multispace0)(remains)?;
+        let (remains, _) = multispace0(remains)?;
+        let (remains, _) = char('}')(remains)?;
         let value = value
             .into_iter()
             .map(|n| (n.0.to_string(), Box::new(n.1)))
             .collect();
         Ok((remains, DecodeResult::Json(value)))
-    }
-
-    pub fn extract(input: &str) -> IResult<&str, DecodeResult> {
-        Self::extract_json(input)
     }
 }
 
@@ -90,7 +94,7 @@ impl<'a> LexicalAnalysis {
 fn should_extract1() {
     use DecodeResult::*;
     let json = "{ \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, \"3\"] }";
-    let la = LexicalAnalysis::extract_json(json);
+    let la = LexicalAnalysis::extract(json);
     let expected = vec![
         (String::from("age"), Number(1)),
         (String::from("name"), Str(String::from("Tom"))),
@@ -115,7 +119,7 @@ fn should_extract2() {
     use DecodeResult::*;
     let json =
         "{ \"hello\": 40, \"json\": { \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] }}";
-    let la = LexicalAnalysis::extract_json(json);
+    let la = LexicalAnalysis::extract(json);
 
     let mut hash_map = HashMap::new();
     hash_map
