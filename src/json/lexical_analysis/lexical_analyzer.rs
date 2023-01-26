@@ -41,7 +41,7 @@ impl<'a> LexicalAnalysis {
                 if let Some(value) = value {
                     return Ok((remains, Box::new(value)));
                 }
-                let (remains, value) = Self::extract(input)?;
+                let (remains, value) = Self::extract_json(input)?;
                 Ok((remains, Box::new(value)))
             }),
             delimited(multispace0, char(']'), multispace0),
@@ -49,7 +49,7 @@ impl<'a> LexicalAnalysis {
         Ok((remains, value.map(|n| DecodeResult::Array(n))))
     }
 
-    pub fn extract(input: &str) -> IResult<&str, DecodeResult> {
+    fn extract_json(input: &str) -> IResult<&str, DecodeResult> {
         let (remains, _) = delimited(multispace0, char('{'), multispace0)(input)?;
         let (remains, value) = separated_list0(
             permutation((multispace0, char(','), multispace0)),
@@ -80,13 +80,17 @@ impl<'a> LexicalAnalysis {
             .collect();
         Ok((remains, DecodeResult::Json(value)))
     }
+
+    pub fn extract(input: &str) -> IResult<&str, DecodeResult> {
+        Self::extract_json(input)
+    }
 }
 
 #[test]
 fn should_extract1() {
     use DecodeResult::*;
     let json = "{ \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, \"3\"] }";
-    let la = LexicalAnalysis::extract(json);
+    let la = LexicalAnalysis::extract_json(json);
     let expected = vec![
         (String::from("age"), Number(1)),
         (String::from("name"), Str(String::from("Tom"))),
@@ -111,7 +115,7 @@ fn should_extract2() {
     use DecodeResult::*;
     let json =
         "{ \"hello\": 40, \"json\": { \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] }}";
-    let la = LexicalAnalysis::extract(json);
+    let la = LexicalAnalysis::extract_json(json);
 
     let mut hash_map = HashMap::new();
     hash_map
