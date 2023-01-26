@@ -44,16 +44,23 @@ impl<'a> LexicalAnalysis {
             permutation((multispace0, char('['))),
             separated_list0(char(','), |input| {
                 let input: &str = input;
-                let (remains, value) = Self::try_to_extract_digit(input)?;
-                if let Some(value) = value {
-                    return Ok((remains, Box::new(value)));
+                if let Some(char_head) = input.chars().next() {
+                    match char_head {
+                        '\"' => {
+                            let (remains, value) = Self::try_to_extract_string(input)?;
+                            return Ok((remains, Box::new(value.unwrap())));
+                        }
+                        '{' => {
+                            let (remains, value) = Self::try_to_extract_string(input)?;
+                            return Ok((remains, Box::new(value.unwrap())));
+                        }
+                        _ => {
+                            let (remains, value) = Self::try_to_extract_digit(input)?;
+                            return Ok((remains, Box::new(value.unwrap())));
+                        }
+                    }
                 }
-                let (remains, value) = Self::try_to_extract_string(input)?;
-                if let Some(value) = value {
-                    return Ok((remains, Box::new(value)));
-                }
-                let (remains, value) = Self::extract(input)?;
-                Ok((remains, Box::new(value)))
+                unreachable!()
             }),
             permutation((multispace0, char(']'))),
         ))(input)?;
@@ -71,20 +78,29 @@ impl<'a> LexicalAnalysis {
                 multispace0,
             )(input)?;
             let (remains, _) = char(':')(remains)?;
-            let (remains, value) = Self::try_to_extract_digit(remains)?;
-            if let Some(value) = value {
-                return Ok((remains, (key, value)));
+            let (remains, _) = multispace0(remains)?;
+
+            if let Some(head_char) = remains.chars().next() {
+                match head_char {
+                    '[' => {
+                        let (remains, value) = Self::try_to_extract_array(remains)?;
+                        return Ok((remains, (key, value.unwrap())));
+                    }
+                    '{' => {
+                        let (remains, value) = Self::try_to_extract_json(remains)?;
+                        return Ok((remains, (key, value)));
+                    }
+                    '\"' => {
+                        let (remains, value) = Self::try_to_extract_string(remains)?;
+                        return Ok((remains, (key, value.unwrap())));
+                    }
+                    _ => {
+                        let (remains, value) = Self::try_to_extract_digit(remains)?;
+                        return Ok((remains, (key, value.unwrap())));
+                    }
+                }
             }
-            let (remains, value) = Self::try_to_extract_string(remains)?;
-            if let Some(value) = value {
-                return Ok((remains, (key, value)));
-            }
-            let (remains, value) = Self::try_to_extract_array(remains)?;
-            if let Some(value) = value {
-                return Ok((remains, (key, value)));
-            }
-            let (remains, value) = Self::try_to_extract_json(remains)?;
-            Ok((remains, (key, value)))
+            unreachable!()
         })(remains)?;
         let (remains, _) = multispace0(remains)?;
         let (remains, _) = char('}')(remains)?;
@@ -103,7 +119,7 @@ impl<'a> LexicalAnalysis {
 #[test]
 fn should_extract1() {
     use DecodeResult::*;
-    let json = "{ \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, \"3\"] }";
+    let json = "{ \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] }";
     let la = LexicalAnalysis::extract(json);
     let expected = vec![
         (String::from("age"), Number(1)),
@@ -114,7 +130,7 @@ fn should_extract1() {
                 Box::new(Number(1)),
                 Box::new(Number(2)),
                 Box::new(Number(4)),
-                Box::new(Str(String::from("3"))),
+                Box::new(Number(3)),
             ]),
         ),
     ]

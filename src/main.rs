@@ -8,17 +8,20 @@ use std::time::Instant;
 mod json;
 
 fn main() {
+    let moji = "a".repeat(10);
+    let json = String::from("{") + format!("{}: 1,", moji).as_str() + "\"name\": \"taro\"\n,\"age\": 81 ,\n \"favoriteNumbers\" :  [  -1 , 2  ], \"family\": \n { \"name\": \"hoge\", \"age\": 8, \"array\": [   ] \n }";
     let start = Instant::now();
     for _ in 0..100000 {
-        LexicalAnalysis::extract(
-            " { \n   \"name\": \"taro\"\n,\"age\": 81 ,\n \"favoriteNumbers\" :  [  -1 , 2 , 3 , 4 , 5   ], \"family\": \n { \"name\": \"hoge\", \"age\": 8, \"array\": [  1 , 2 , 3  ] \n }\n }",
-        );
+        // LexicalAnalysis::extract(
+        //     " { \n   \"name\": \"taro\"\n,\"age\": 81 ,\n \"favoriteNumbers\" :  [  -1 , 2  ], \"family\": \n { \"name\": \"hoge\", \"age\": 8, \"array\": [   ] \n }\n }",
+        // );
+        // LexicalAnalysis::extract("{a:1}");
     }
     let end = start.elapsed();
-    let aaa = Dog::decode_from(
-        " {    \"name\" : \"taro\" , \"age\": 81 , \"favoriteNumbers\" :   [  -1 , 2 , 3 , 4 , 5 ], \"family\": { \"name\": \"hoge\", \"age\": 8, \"array\": [1 , 2 , 3 ] } }",
-    );
-    println!("{:?}", aaa);
+    // let aaa = Dog::decode_from(
+    //     " {    \"name\" : \"taro\" , \"age\": 81 , \"favoriteNumbers\" :   [  -1 , 2 , 3 ], \"family\": { \"name\": \"hoge\", \"age\": 8, \"array\": [1 , 2 , 3 ] } }",
+    // );
+    // println!("{:?}", aaa);
     println!(
         "{}.{:03}秒経過しました。",
         end.as_secs(),
