@@ -26,7 +26,7 @@ impl<'a> LexicalAnalysis {
             |input| {
                 let input: &str = input;
                 let (remains, value) = opt(char('-'))(input)?;
-                if let Some(value) = value {
+                if let Some(_) = value {
                     let (remains, value) = digit1(remains)?;
                     Ok((remains, -1 * value.parse::<isize>().unwrap()))
                 } else {
