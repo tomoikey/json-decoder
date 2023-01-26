@@ -60,7 +60,7 @@ impl<'a> LexicalAnalysis {
         Ok((remains, value.map(|n| DecodeResult::Array(n))))
     }
 
-    pub fn extract(input: &str) -> IResult<&str, DecodeResult> {
+    pub fn try_to_extract_json(input: &str) -> IResult<&str, DecodeResult> {
         let (remains, _) = multispace0(input)?;
         let (remains, _) = char('{')(remains)?;
         let (remains, value) = separated_list0(char(','), |input| {
@@ -83,7 +83,7 @@ impl<'a> LexicalAnalysis {
             if let Some(value) = value {
                 return Ok((remains, (key, value)));
             }
-            let (remains, value) = Self::extract(remains)?;
+            let (remains, value) = Self::try_to_extract_json(remains)?;
             Ok((remains, (key, value)))
         })(remains)?;
         let (remains, _) = multispace0(remains)?;
@@ -93,6 +93,10 @@ impl<'a> LexicalAnalysis {
             .map(|n| (n.0.to_string(), Box::new(n.1)))
             .collect();
         Ok((remains, DecodeResult::Json(value)))
+    }
+
+    pub fn extract(input: &str) -> IResult<&str, DecodeResult> {
+        Self::try_to_extract_json(input)
     }
 }
 
