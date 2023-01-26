@@ -21,11 +21,22 @@ impl<'a> LexicalAnalysis {
     }
 
     fn try_to_extract_digit(input: &str) -> IResult<&str, Option<DecodeResult>> {
-        let (remains, value) = opt(delimited(multispace0, digit1, multispace0))(input)?;
-        Ok((
-            remains,
-            value.map(|n| DecodeResult::Number(n.parse::<u8>().unwrap())),
-        ))
+        let (remains, value) = opt(delimited(
+            multispace0,
+            |input| {
+                let input: &str = input;
+                let (remains, value) = opt(char('-'))(input)?;
+                if let Some(value) = value {
+                    let (remains, value) = digit1(remains)?;
+                    Ok((remains, -1 * value.parse::<isize>().unwrap()))
+                } else {
+                    let (remains, value) = digit1(remains)?;
+                    Ok((remains, value.parse::<isize>().unwrap()))
+                }
+            },
+            multispace0,
+        ))(input)?;
+        Ok((remains, value.map(|n| DecodeResult::Number(n))))
     }
 
     fn try_to_extract_array(input: &str) -> IResult<&str, Option<DecodeResult>> {

@@ -4,7 +4,7 @@ use std::ops::Deref;
 #[derive(Debug, PartialEq, Clone)]
 pub enum DecodeResult {
     Str(String),
-    Number(u8),
+    Number(isize),
     Array(Vec<Box<DecodeResult>>),
     Json(HashMap<String, Box<DecodeResult>>),
 }
@@ -29,7 +29,7 @@ impl DecodeResult {
         }
     }
 
-    pub fn as_number(&self) -> u8 {
+    pub fn as_number(&self) -> isize {
         use DecodeResult::*;
         match self {
             Number(value) => value.clone(),
