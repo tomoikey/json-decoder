@@ -47,7 +47,7 @@ impl<'a> LexicalAnalysis {
                     Ok((remains, Box::new(value)))
                 },
             ),
-            delimited(multispace0, char(']'), multispace0),
+            char(']'),
         ))(input)?;
         Ok((remains, value.map(|n| DecodeResult::Array(n))))
     }
