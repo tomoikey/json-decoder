@@ -16,7 +16,7 @@ fn main() {
     }
     let end = start.elapsed();
     let aaa = Dog::decode_from(
-        " {    \"name\": \"taro\",\"age\": 81, \"favoriteNumbers\" : [ -1 , 2 , 3 , 4 , 5 ], \"family\": { \"name\": \"hoge\", \"age\": 8, \"array\": [1 , 2 , 3 ] } }",
+        " {    \"name\" : \"taro\" , \"age\": 81 , \"favoriteNumbers\" : [ -1 , 2 , 3 , 4 , 5 ], \"family\": { \"name\": \"hoge\", \"age\": 8, \"array\": [1 , 2 , 3 ] } }",
     );
     println!("{:?}", aaa);
     println!(

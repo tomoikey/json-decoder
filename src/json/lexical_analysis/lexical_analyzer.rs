@@ -55,7 +55,7 @@ impl<'a> LexicalAnalysis {
                 let (remains, value) = Self::extract(input)?;
                 Ok((remains, Box::new(value)))
             }),
-            char(']'),
+            delimited(multispace0, char(']'), multispace0),
         ))(input)?;
         Ok((remains, value.map(|n| DecodeResult::Array(n))))
     }
