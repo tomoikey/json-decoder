@@ -8,10 +8,13 @@ mod json;
 
 fn main() {
     let start = Instant::now();
-    for _ in 0..100000 {
-        let dog_json =
-            "{\"name\": \"taro\", \"age\": 8, \"favoriteNumbers\": [1, 2, 3, 4, 5], \"favoriteStrings\": [\"apple\", \"banana\"], \"family\": { \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] } }";
-        LexicalAnalysis::extract(dog_json);
+    for _ in 0..200000 {
+        // let dog_json =
+        // "{\"name\": \"taro\", \"age\": 8, \"favoriteNumbers\": [1, 2, 3, 4, 5], \"favoriteStrings\": [\"apple\", \"banana\"], \"family\": { \"age\": 1, \"name\": \"Tom\", \"array\": [1, 2, 4, 3] } }";
+        // "{\"name\": \"taro\" }";
+        LexicalAnalysis::extract(
+            "{ \"name\": \"taro\" , \"age\" : 8, \"favoriteNumbers\" : [ 1 , 2 , 3 , 4 , 5 ] }",
+        );
         // println!("{:?}", result.human);
     }
     let end = start.elapsed();

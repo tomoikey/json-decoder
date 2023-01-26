@@ -31,22 +31,19 @@ impl<'a> LexicalAnalysis {
     fn try_to_extract_array(input: &str) -> IResult<&str, Option<DecodeResult>> {
         let (remains, value) = opt(delimited(
             delimited(multispace0, char('['), multispace0),
-            separated_list0(
-                permutation((multispace0, char(','), multispace0)),
-                |input| {
-                    let input: &str = input;
-                    let (remains, value) = Self::try_to_extract_digit(input)?;
-                    if let Some(value) = value {
-                        return Ok((remains, Box::new(value)));
-                    }
-                    let (remains, value) = Self::try_to_extract_string(input)?;
-                    if let Some(value) = value {
-                        return Ok((remains, Box::new(value)));
-                    }
-                    let (remains, value) = Self::extract(input)?;
-                    Ok((remains, Box::new(value)))
-                },
-            ),
+            separated_list0(char(','), |input| {
+                let input: &str = input;
+                let (remains, value) = Self::try_to_extract_digit(input)?;
+                if let Some(value) = value {
+                    return Ok((remains, Box::new(value)));
+                }
+                let (remains, value) = Self::try_to_extract_string(input)?;
+                if let Some(value) = value {
+                    return Ok((remains, Box::new(value)));
+                }
+                let (remains, value) = Self::extract(input)?;
+                Ok((remains, Box::new(value)))
+            }),
             delimited(multispace0, char(']'), multispace0),
         ))(input)?;
         Ok((remains, value.map(|n| DecodeResult::Array(n))))
@@ -58,11 +55,7 @@ impl<'a> LexicalAnalysis {
             permutation((multispace0, char(','), multispace0)),
             |input| {
                 let input: &str = input;
-                let (remains, key) = delimited(
-                    multispace0,
-                    delimited(char('\"'), alphanumeric1, char('\"')),
-                    multispace0,
-                )(input)?;
+                let (remains, key) = delimited(char('\"'), alphanumeric1, char('\"'))(input)?;
                 let (remains, _) = char(':')(remains)?;
                 let (remains, value) = Self::try_to_extract_digit(remains)?;
                 if let Some(value) = value {
