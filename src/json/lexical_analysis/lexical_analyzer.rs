@@ -2,9 +2,9 @@ use crate::json::lexical_analysis::decode_result::DecodeResult;
 use nom::branch::permutation;
 use nom::character::complete::{alphanumeric1, char, digit1, multispace0};
 use nom::combinator::opt;
-use nom::multi::separated_list0;
+use nom::multi::{separated_list0, separated_list1};
 use nom::sequence::delimited;
-use nom::IResult;
+use nom::{AsChar, IResult};
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -42,7 +42,7 @@ impl<'a> LexicalAnalysis {
     fn try_to_extract_array(input: &str) -> IResult<&str, Option<DecodeResult>> {
         let (remains, value) = opt(delimited(
             permutation((multispace0, char('['))),
-            separated_list0(char(','), |input| {
+            separated_list1(char(','), |input| {
                 let input: &str = input;
                 if let Some(char_head) = input.chars().next() {
                     match char_head {
@@ -51,7 +51,11 @@ impl<'a> LexicalAnalysis {
                             return Ok((remains, Box::new(value.unwrap())));
                         }
                         '{' => {
-                            let (remains, value) = Self::try_to_extract_string(input)?;
+                            let (remains, value) = Self::try_to_extract_json(input)?;
+                            return Ok((remains, Box::new(value)));
+                        }
+                        '[' => {
+                            let (remains, value) = Self::try_to_extract_array(input)?;
                             return Ok((remains, Box::new(value.unwrap())));
                         }
                         _ => {

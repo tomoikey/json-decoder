@@ -13,9 +13,10 @@ fn main() {
     let start = Instant::now();
     for _ in 0..100000 {
         // LexicalAnalysis::extract(
-        //     " { \n   \"name\": \"taro\"\n,\"age\": 81 ,\n \"favoriteNumbers\" :  [  -1 , 2  ], \"family\": \n { \"name\": \"hoge\", \"age\": 8, \"array\": [   ] \n }\n }",
+        //     " { \n   \"name\": \"taro\"\n,\"age\": 81 ,\n \"favoriteNumbers\" :  [  -1 , 2  ], \"family\": \n { \"name\": \"hoge\", \"age\": 8, \"array\": [  1 ] \n }\n }",
         // );
-        // LexicalAnalysis::extract("{a:1}");
+        // Box::new(1);
+        LexicalAnalysis::extract(json.as_str());
     }
     let end = start.elapsed();
     // let aaa = Dog::decode_from(
