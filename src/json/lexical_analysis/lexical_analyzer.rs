@@ -154,3 +154,35 @@ fn should_extract2() {
     .collect();
     assert_eq!(la, Ok(("", Json(expected))))
 }
+
+#[test]
+fn should_extract3() {
+    use DecodeResult::*;
+    let json =
+        "{ \"hello\": 40, \"json\": { \"age\": 1, \"name\": \"Tom\", \"array\": [-1, 2, -4, 3] }}";
+    let la = LexicalAnalysis::extract(json);
+
+    let mut hash_map = HashMap::new();
+    hash_map
+        .entry(String::from("age"))
+        .or_insert(Box::new(Number(1)));
+    hash_map
+        .entry(String::from("name"))
+        .or_insert(Box::new(Str(String::from("Tom"))));
+    hash_map
+        .entry(String::from("array"))
+        .or_insert(Box::new(Array(vec![
+            Box::new(Number(-1)),
+            Box::new(Number(2)),
+            Box::new(Number(-4)),
+            Box::new(Number(3)),
+        ])));
+    let expected = vec![
+        (String::from("hello"), Number(40)),
+        (String::from("json"), Json(hash_map)),
+    ]
+    .into_iter()
+    .map(|n| (n.0, Box::new(n.1)))
+    .collect();
+    assert_eq!(la, Ok(("", Json(expected))))
+}
