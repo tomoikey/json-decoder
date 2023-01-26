@@ -42,22 +42,19 @@ impl<'a> LexicalAnalysis {
     fn try_to_extract_array(input: &str) -> IResult<&str, Option<DecodeResult>> {
         let (remains, value) = opt(delimited(
             delimited(multispace0, char('['), multispace0),
-            separated_list0(
-                permutation((multispace0, char(','), multispace0)),
-                |input| {
-                    let input: &str = input;
-                    let (remains, value) = Self::try_to_extract_digit(input)?;
-                    if let Some(value) = value {
-                        return Ok((remains, Box::new(value)));
-                    }
-                    let (remains, value) = Self::try_to_extract_string(input)?;
-                    if let Some(value) = value {
-                        return Ok((remains, Box::new(value)));
-                    }
-                    let (remains, value) = Self::extract(input)?;
-                    Ok((remains, Box::new(value)))
-                },
-            ),
+            separated_list0(char(','), |input| {
+                let input: &str = input;
+                let (remains, value) = Self::try_to_extract_digit(input)?;
+                if let Some(value) = value {
+                    return Ok((remains, Box::new(value)));
+                }
+                let (remains, value) = Self::try_to_extract_string(input)?;
+                if let Some(value) = value {
+                    return Ok((remains, Box::new(value)));
+                }
+                let (remains, value) = Self::extract(input)?;
+                Ok((remains, Box::new(value)))
+            }),
             char(']'),
         ))(input)?;
         Ok((remains, value.map(|n| DecodeResult::Array(n))))
