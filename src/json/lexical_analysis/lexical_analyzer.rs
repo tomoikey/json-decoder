@@ -53,33 +53,31 @@ impl<'a> LexicalAnalysis {
     }
 
     pub fn extract(input: &str) -> IResult<&str, DecodeResult> {
-        let (remains, _) = delimited(multispace0, char('{'), multispace0)(input)?;
-        let (remains, value) = separated_list0(
-            permutation((multispace0, char(','), multispace0)),
-            |input| {
-                let input: &str = input;
-                let (remains, key) = delimited(
-                    multispace0,
-                    delimited(char('\"'), alphanumeric1, char('\"')),
-                    multispace0,
-                )(input)?;
-                let (remains, _) = char(':')(remains)?;
-                let (remains, value) = Self::try_to_extract_digit(remains)?;
-                if let Some(value) = value {
-                    return Ok((remains, (key, value)));
-                }
-                let (remains, value) = Self::try_to_extract_string(remains)?;
-                if let Some(value) = value {
-                    return Ok((remains, (key, value)));
-                }
-                let (remains, value) = Self::try_to_extract_array(remains)?;
-                if let Some(value) = value {
-                    return Ok((remains, (key, value)));
-                }
-                let (remains, value) = Self::extract(remains)?;
-                Ok((remains, (key, value)))
-            },
-        )(remains)?;
+        let (remains, _) = multispace0(input)?;
+        let (remains, _) = char('{')(remains)?;
+        let (remains, value) = separated_list0(char(','), |input| {
+            let input: &str = input;
+            let (remains, key) = delimited(
+                multispace0,
+                delimited(char('\"'), alphanumeric1, char('\"')),
+                multispace0,
+            )(input)?;
+            let (remains, _) = char(':')(remains)?;
+            let (remains, value) = Self::try_to_extract_digit(remains)?;
+            if let Some(value) = value {
+                return Ok((remains, (key, value)));
+            }
+            let (remains, value) = Self::try_to_extract_string(remains)?;
+            if let Some(value) = value {
+                return Ok((remains, (key, value)));
+            }
+            let (remains, value) = Self::try_to_extract_array(remains)?;
+            if let Some(value) = value {
+                return Ok((remains, (key, value)));
+            }
+            let (remains, value) = Self::extract(remains)?;
+            Ok((remains, (key, value)))
+        })(remains)?;
         let (remains, _) = multispace0(remains)?;
         let (remains, _) = char('}')(remains)?;
         let value = value
