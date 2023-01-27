@@ -8,7 +8,7 @@ use std::time::Instant;
 mod json;
 
 fn main() {
-    let moji = "a".repeat(10);
+    let moji = "a".repeat(100);
     let json = String::from("{") + format!("{}: 1,", moji).as_str() + "\"name\": \"taro\"\n,\"age\": 81 ,\n \"favoriteNumbers\" :  [  -1 , 2  ], \"family\": \n { \"name\": \"hoge\", \"age\": 8, \"array\": [   ] \n }";
     let start = Instant::now();
     for _ in 0..100000 {

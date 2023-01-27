@@ -60,11 +60,13 @@ impl<'a> LexicalAnalysis {
                         }
                         _ => {
                             let (remains, value) = Self::try_to_extract_digit(input)?;
-                            return Ok((remains, Box::new(value.unwrap())));
+                            if let Some(value) = value {
+                                return Ok((remains, Box::new(value)));
+                            }
                         }
                     }
                 }
-                unreachable!()
+                panic!("invalid json")
             }),
             permutation((multispace0, char(']'))),
         ))(input)?;
@@ -83,7 +85,6 @@ impl<'a> LexicalAnalysis {
             )(input)?;
             let (remains, _) = char(':')(remains)?;
             let (remains, _) = multispace0(remains)?;
-
             if let Some(head_char) = remains.chars().next() {
                 match head_char {
                     '[' => {
@@ -100,11 +101,13 @@ impl<'a> LexicalAnalysis {
                     }
                     _ => {
                         let (remains, value) = Self::try_to_extract_digit(remains)?;
-                        return Ok((remains, (key, value.unwrap())));
+                        if let Some(value) = value {
+                            return Ok((remains, (key, value)));
+                        }
                     }
                 }
             }
-            unreachable!()
+            panic!("invalid json")
         })(remains)?;
         let (remains, _) = multispace0(remains)?;
         let (remains, _) = char('}')(remains)?;
@@ -117,6 +120,8 @@ impl<'a> LexicalAnalysis {
 
     pub fn extract(input: &str) -> IResult<&str, DecodeResult> {
         Self::try_to_extract_json(input)
+
+        /* 以下{}から始まるもの以外の処理諸々 */
     }
 }
 
