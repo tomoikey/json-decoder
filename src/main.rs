@@ -5,6 +5,7 @@ use crate::json::lexical_analysis::lexical_analyzer::LexicalAnalysis;
 use std::fs;
 use std::time::Instant;
 
+mod domain;
 mod json;
 
 fn main() {
@@ -12,7 +13,7 @@ fn main() {
     let json = String::from("{") + format!("{}: 1,", moji).as_str() + "\"name\": \"taro\"\n,\"age\": 81 ,\n \"favoriteNumbers\" :  [  -1 , 2  ], \"family\": \n { \"name\": \"hoge\", \"age\": 8, \"array\": [   ] \n }";
     let json = json.as_str();
     let start = Instant::now();
-    for _ in 0..100000 {
+    for _ in 0..10000000 {
         // LexicalAnalysis::extract(
         //     " { \n   \"name\": \"taro\"\n,\"age\": 81 ,\n \"favoriteNumbers\" :  [  -1 , 2  ], \"family\": \n { \"name\": \"hoge\", \"age\": 8, \"array\": [  1 ] \n }\n }",
         // );
@@ -29,19 +30,4 @@ fn main() {
         end.as_secs(),
         end.subsec_nanos() / 1_000_000
     );
-}
-
-#[derive(Debug)]
-struct Dog {
-    name: String,
-    age: isize,
-    favorite_numbers: Vec<isize>,
-    human: Human,
-}
-
-#[derive(Debug)]
-struct Human {
-    age: isize,
-    name: String,
-    array: Vec<isize>,
 }

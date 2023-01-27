@@ -1,6 +1,5 @@
 use crate::json::lexical_analysis::decode_result::DecodeResult;
 use crate::json::lexical_analysis::lexical_analyzer::LexicalAnalysis;
-use crate::{Dog, Human};
 
 pub trait JsonDecoder<T> {
     fn parser(result: &DecodeResult) -> T;
@@ -29,26 +28,5 @@ where
 {
     fn parser(result: &DecodeResult) -> Vec<T> {
         result.as_array().iter().map(|n| T::parser(n)).collect()
-    }
-}
-
-impl JsonDecoder<Dog> for Dog {
-    fn parser(result: &DecodeResult) -> Dog {
-        Dog {
-            name: result.get("name"),
-            age: result.get("age"),
-            favorite_numbers: result.get("favoriteNumbers"),
-            human: result.get("family"),
-        }
-    }
-}
-
-impl JsonDecoder<Human> for Human {
-    fn parser(result: &DecodeResult) -> Human {
-        Human {
-            name: result.get("name"),
-            age: result.get("age"),
-            array: result.get("array"),
-        }
     }
 }
