@@ -4,16 +4,16 @@ use crate::json::lexical_analysis::lexical_analyzer::LexicalAnalysis;
 use crate::{Dog, Human};
 
 pub trait JsonDecoder<T> {
-    fn parser(result: DecodeResult) -> T;
+    fn parser(result: &DecodeResult) -> T;
 
     fn decode_from(json: &str) -> T {
         let result = LexicalAnalysis::extract(json).unwrap().1;
-        Self::parser(result)
+        Self::parser(&result)
     }
 }
 
 impl JsonDecoder<Dog> for Dog {
-    fn parser(result: DecodeResult) -> Dog {
+    fn parser(result: &DecodeResult) -> Dog {
         Dog {
             name: result.get("name"),
             age: result.get("age"),
@@ -24,7 +24,7 @@ impl JsonDecoder<Dog> for Dog {
 }
 
 impl JsonDecoder<Human> for Human {
-    fn parser(result: DecodeResult) -> Human {
+    fn parser(result: &DecodeResult) -> Human {
         Human {
             name: result.get("name"),
             age: result.get("age"),

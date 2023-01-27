@@ -10,11 +10,11 @@ pub enum DecodeResult {
 }
 
 impl DecodeResult {
-    pub fn get_from_hash_map(&self, key: &str) -> Self {
+    pub fn get_from_hash_map(&self, key: &str) -> &Self {
         use DecodeResult::*;
         match self {
             Json(json) => match json.get(key) {
-                Some(value) => value.deref().clone(),
+                Some(value) => value.deref(),
                 None => panic!("key not found"),
             },
             _ => panic!("Jsonの場合のみ適用できます"),

@@ -10,13 +10,14 @@ mod json;
 fn main() {
     let moji = "a".repeat(100);
     let json = String::from("{") + format!("{}: 1,", moji).as_str() + "\"name\": \"taro\"\n,\"age\": 81 ,\n \"favoriteNumbers\" :  [  -1 , 2  ], \"family\": \n { \"name\": \"hoge\", \"age\": 8, \"array\": [   ] \n }";
+    let json = json.as_str();
     let start = Instant::now();
-    for _ in 0..100000 {
+    for _ in 0..100000000 {
         // LexicalAnalysis::extract(
         //     " { \n   \"name\": \"taro\"\n,\"age\": 81 ,\n \"favoriteNumbers\" :  [  -1 , 2  ], \"family\": \n { \"name\": \"hoge\", \"age\": 8, \"array\": [  1 ] \n }\n }",
         // );
         // Box::new(1);
-        LexicalAnalysis::extract(json.as_str());
+        LexicalAnalysis::extract(json);
     }
     let end = start.elapsed();
     // let aaa = Dog::decode_from(
