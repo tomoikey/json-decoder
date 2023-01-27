@@ -1,5 +1,6 @@
 extern crate core;
 
+use crate::domain::animal::dog::Dog;
 use crate::json::json_parser::JsonDecoder;
 use crate::json::lexical_analysis::lexical_analyzer::LexicalAnalysis;
 use std::fs;
@@ -16,6 +17,7 @@ fn main() {
     for _ in 0..100000000 {
         LexicalAnalysis::extract(json);
     }
+    // let dog = Dog::decode_from(json);
     let end = start.elapsed();
     println!(
         "{}.{:03}秒経過しました。",

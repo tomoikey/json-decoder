@@ -1,1 +1,1 @@
-mod animal;
+pub mod animal;

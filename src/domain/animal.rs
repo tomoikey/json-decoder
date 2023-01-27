@@ -1,2 +1,2 @@
-mod dog;
-mod human;
+pub mod dog;
+pub mod human;
