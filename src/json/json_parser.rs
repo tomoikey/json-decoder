@@ -12,7 +12,7 @@ pub trait JsonDecoder<T> {
 
 impl JsonDecoder<isize> for isize {
     fn parser(result: &DecodeResult) -> isize {
-        result.as_number()
+        result.as_isize()
     }
 }
 

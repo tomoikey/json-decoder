@@ -13,18 +13,10 @@ fn main() {
     let json = String::from("{") + format!("{}: 1,", moji).as_str() + "\"name\": \"taro\"\n,\"age\": 81 ,\n \"favoriteNumbers\" :  [  -1 , 2  ], \"family\": \n { \"name\": \"hoge\", \"age\": 8, \"array\": [   ] \n }";
     let json = json.as_str();
     let start = Instant::now();
-    for _ in 0..10000000 {
-        // LexicalAnalysis::extract(
-        //     " { \n   \"name\": \"taro\"\n,\"age\": 81 ,\n \"favoriteNumbers\" :  [  -1 , 2  ], \"family\": \n { \"name\": \"hoge\", \"age\": 8, \"array\": [  1 ] \n }\n }",
-        // );
-        // Box::new(1);
+    for _ in 0..100000000 {
         LexicalAnalysis::extract(json);
     }
     let end = start.elapsed();
-    // let aaa = Dog::decode_from(
-    //     " {    \"name\" : \"taro\" , \"age\": 81 , \"favoriteNumbers\" :   [  -1 , 2 , 3 ], \"family\": { \"name\": \"hoge\", \"age\": 8, \"array\": [1 , 2 , 3 ] } }",
-    // );
-    // println!("{:?}", aaa);
     println!(
         "{}.{:03}秒経過しました。",
         end.as_secs(),

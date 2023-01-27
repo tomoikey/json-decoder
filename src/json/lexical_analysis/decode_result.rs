@@ -36,9 +36,86 @@ impl DecodeResult {
         }
     }
 
-    pub fn as_number(&self) -> isize {
+    pub fn as_i8(&self) -> i8 {
+        match *self {
+            Number(value) => value as i8,
+            _ => panic!("Number型ではありません"),
+        }
+    }
+
+    pub fn as_i16(&self) -> i16 {
+        match *self {
+            Number(value) => value as i16,
+            _ => panic!("Number型ではありません"),
+        }
+    }
+
+    pub fn as_i32(&self) -> i32 {
+        match *self {
+            Number(value) => value as i32,
+            _ => panic!("Number型ではありません"),
+        }
+    }
+
+    pub fn as_i64(&self) -> i64 {
+        match *self {
+            Number(value) => value as i64,
+            _ => panic!("Number型ではありません"),
+        }
+    }
+
+    pub fn as_i128(&self) -> i128 {
+        match *self {
+            Number(value) => value as i128,
+            _ => panic!("Number型ではありません"),
+        }
+    }
+
+    pub fn as_isize(&self) -> isize {
         match *self {
             Number(value) => value,
+            _ => panic!("Number型ではありません"),
+        }
+    }
+
+    pub fn as_u8(&self) -> u8 {
+        match *self {
+            Number(value) => value as u8,
+            _ => panic!("Number型ではありません"),
+        }
+    }
+
+    pub fn as_u16(&self) -> u16 {
+        match *self {
+            Number(value) => value as u16,
+            _ => panic!("Number型ではありません"),
+        }
+    }
+
+    pub fn as_u32(&self) -> u32 {
+        match *self {
+            Number(value) => value as u32,
+            _ => panic!("Number型ではありません"),
+        }
+    }
+
+    pub fn as_u64(&self) -> u64 {
+        match *self {
+            Number(value) => value as u64,
+            _ => panic!("Number型ではありません"),
+        }
+    }
+
+    pub fn as_u128(&self) -> u128 {
+        match *self {
+            Number(value) => value as u128,
+            _ => panic!("Number型ではありません"),
+        }
+    }
+
+    pub fn as_usize(&self) -> usize {
+        match *self {
+            Number(value) => value as usize,
             _ => panic!("Number型ではありません"),
         }
     }
